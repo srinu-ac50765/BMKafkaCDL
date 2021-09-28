@@ -42,7 +42,7 @@ def get_connection():
             return conn
 
 
-def get_co_ref_details(cursor, sql):
+def get_details_from_db(cursor, sql):
     complete_table_rows = []
     for row in cursor.execute(sql):
         complete_table_rows.append(row)
@@ -88,12 +88,136 @@ def search_functionality(conn):
                                LEFT JOIN BMKAFKO.BMOM_CO_ORDER_REF_RSN BCORR2
                                ON BCOR.ORDER_REF_ID = BCORR2.ORDER_REF_ID 
                                WHERE BCOR.BAN ='{input_num}'"""
-                tabulate_result, _ , _ = get_co_ref_details(cursor, sql)
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
                 st.text(tabulate_result)
             elif topic_name == 'bmom.co.account':
                 sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_ACCOUNT 
                                WHERE BAN ='{input_num}'"""
-                tabulate_result, _, _ = get_co_ref_details(cursor, sql)
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.co.address':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_ADDRESS bca 
+                            LEFT JOIN BMKAFKO.BMOM_CO_ADDRESS_DETAIL bcad 
+                            ON bca.SVC_ADDRESS_ID = bcad.ADDRESS_ID 
+                            OR bca.BILLING_ADDRESS_ID  = BCAD.ADDRESS_ID 
+                            WHERE bca.BAN ='{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.co.orderItems':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_ORDER_ITEMS bcoi  
+                            LEFT JOIN BMKAFKO.BMOM_CO_ORDER_ITEMS_DET bcoid  
+                            ON bcoi.PARENT_ORDER_ITEM_ID = bcoid.PARENT_ORDER_ITEM_ID 
+                            LEFT JOIN BMKAFKO.BMOM_CO_RESERVED_TN bcrt   
+                            ON bcoi.PARENT_ORDER_ITEM_ID = bcrt.PARENT_ORDER_ITEM_ID 
+                            WHERE bcoi.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.co.schedule':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_SCHEDULE bcs   
+                            LEFT JOIN BMKAFKO.BMOM_CO_SCHEDULE_RSN bcsr   
+                            ON bcs.SCHEDULE_ID = bcsr.SCHEDULE_ID 
+                            WHERE bcs.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.co.orderDealerCode':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_ORDER_DEALER_CODE bcodc    
+                            LEFT JOIN BMKAFKO.BMOM_CO_ORDER_DEALER_CODE_DET bcodcd    
+                            ON bcodc.PARENT_DEALER_CODE_ID = bcodcd.PARENT_DEALER_CODE_ID 
+                            WHERE bcodc.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.co.pricingDetails':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_PRICING bcp     
+                            LEFT JOIN BMKAFKO.BMOM_CO_PRICING_DETAIL bcpd     
+                            ON bcp.PRICING_ID = bcpd.PRICING_ID 
+                            WHERE bcp.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.co.salesChannelInfo':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_CO_SALES_CHANNEL bcsc      
+                            LEFT JOIN BMKAFKO.BMOM_CO_SALES_CHANNEL_ATTR bcsca      
+                            ON bcsc.SALES_CHANNEL_ID = bcsca.SALES_CHANNEL_ID 
+                            WHERE bcsc.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.bo.productDetails':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_BO_BLNG_PRODUCTS bbbp       
+                            LEFT JOIN BMKAFKO.BMOM_BO_BLNG_PRODUCT_DETAILS bbbpd       
+                            ON bbbp.BLNG_PRODUCT_ID = bbbpd.BLNG_PRODUCT_ID 
+                            LEFT JOIN BMKAFKO.BMOM_BO_BLNG_PRICE_PLAN bbbpp        
+                            ON bbbp.BLNG_PRODUCT_ID = bbbpp.BLNG_PRODUCT_ID 
+                            LEFT JOIN BMKAFKO.BMOM_BO_BLNG_FEATURE_CODE bbbfc         
+                            ON bbbp.BLNG_PRODUCT_ID = bbbfc.BLNG_PRODUCT_ID 
+                            WHERE bbbp.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.bo.discount':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_BO_DISCOUNTS bbd        
+                            LEFT JOIN BMKAFKO.BMOM_BO_DISCOUNT_DETAIL bbdd        
+                            ON bbd.DISCOUNT_ID = bbdd.DISCOUNT_ID 
+                            WHERE bbd.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.bo.otc':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_BO_OTC_PRODUCTS bbop         
+                            LEFT JOIN BMKAFKO.BMOM_BO_OTC_PRODUCT_DET bbopd         
+                            ON bbop.OTC_PRODUCT_ID = bbopd.OTC_PRODUCT_ID 
+                            WHERE bbop.BAN ='{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.bo.prepaidProductDetails':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_BO_PREPAID_PRODUCTS bbpp          
+                            LEFT JOIN BMKAFKO.BMOM_BO_PREPAID_PRODUCT_DET bbppd          
+                            ON bbpp.PREPAID_PRODUCT_ID = bbppd.PREPAID_PRODUCT_ID 
+                            WHERE bbpp.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.provServiceOrderStatus':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_PROV_SVC_ORDER_STATUS 
+                            WHERE BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.tomProvisioned':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_TOM_PROVISIONED bptp           
+                            LEFT JOIN BMKAFKO.BMOM_PO_TOM_PROV_PRODUCT_LIST bptppl           
+                            ON bptp.TOM_PROVISIONED_ID = bptppl.TOM_PROVISIONED_ID 
+                            WHERE bptp.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.dhpProvisioned':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_DHP_PROVISIONED bpdp 
+                            WHERE BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.ffwfProvisioned':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_FFWF_PROVISIONED bpfp            
+                            LEFT JOIN BMKAFKO.BMOM_PO_FFWF_PROVISIONED_DET bpfpd            
+                            ON bpfp.PARENT_FFWF_PROV_ID = bpfpd.PARENT_FFWF_PROV_ID 
+                            LEFT JOIN BMKAFKO.BMOM_PO_ENJ_PARAMETERS bpep             
+                            ON bpfpd.FFWF_PROV_ID = bpep.FFWF_PROV_ID 
+                            WHERE bpfp.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.dtvProvisioned':
+                st.text('Table was not created for DTV')
+            elif topic_name == 'bmom.po.directoryListing':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_DIRECTORY_LISTING bpdl  
+                            WHERE BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.tomAsyncResponseLC':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_TOM_ASYNCH_RESPONSE_LC bptarl             
+                            LEFT JOIN BMKAFKO.BMOM_PO_MOI_SERVICE_ORDER bpmso             
+                            ON bptarl.TOM_ASYNCH_RESPLC_ID = bpmso.TOM_ASYNCH_RESPLC_ID 
+                            WHERE bptarl.BAN = '{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
+                st.text(tabulate_result)
+            elif topic_name == 'bmom.po.tomAsyncResponseLQ':
+                sql = f"""SELECT * FROM BMKAFKO.BMOM_PO_TOM_ASYNCH_RESPONSE bptar              
+                            LEFT JOIN BMKAFKO.BMOM_PO_PROV_SERVICE_ORDER bppso              
+                            ON bptar.TOM_ASYNCH_RESP_ID = bppso.TOM_ASYNCH_RESP_ID 
+                            WHERE bptar.BAN ='{input_num}'"""
+                tabulate_result, _, _ = get_details_from_db(cursor, sql)
                 st.text(tabulate_result)
         except Exception as er:
             print('Error opening cursor:' + str(er))
@@ -124,7 +248,7 @@ def statistics_functionality(conn):
                                 WHERE SYS_CREATION_DATE >= TO_DATE('{from_date}', 'yyyy/mm/dd')
                                 AND SYS_CREATION_DATE <= TO_DATE('{to_date}', 'yyyy/mm/dd')
                                 GROUP BY MESSAGE_TYPE"""
-                tabulate_result, col_names, data_rows = get_co_ref_details(cursor, sql)
+                tabulate_result, col_names, data_rows = get_details_from_db(cursor, sql)
                 st.text(tabulate_result)
                 data_frame = pd.DataFrame(data=data_rows, columns=col_names)
                 new_df = data_frame.reset_index().set_index('MESSAGE_TYPE')
