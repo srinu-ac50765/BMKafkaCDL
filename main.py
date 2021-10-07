@@ -3,6 +3,7 @@ import streamlit as st
 from tabulate import tabulate
 import pandas as pd
 from random import random
+import altair as alt
 
 lib_dir = r"C:\Software\instantclient-basic-windows.x64-19.11.0.0.0dbru\instantclient_19_11"
 st.set_page_config(page_title="BMKafkaCDL", page_icon=":mailbox_with_mail:", layout='wide',
@@ -90,6 +91,7 @@ def search_functionality(conn):
                                               'bmom.po.tomAsyncResponseLQ'))
 
     enter_button = st.button('Search')
+    st.markdown("""---""")
     if enter_button and input_num:
         cursor = None
         try:
@@ -239,7 +241,7 @@ def search_functionality(conn):
                 cursor.close()
 
 
-def statistics_functionality(conn):
+def get_stats_by_date_range(conn):
     col1, col2, col3, _, _, _ = st.columns(6)
     with col1:
         st.text('Select date range :')
@@ -247,8 +249,8 @@ def statistics_functionality(conn):
         from_date = st.date_input('from_date')
     with col3:
         to_date = st.date_input('to_date')
-
     enter_button = st.button('Search')
+    st.markdown("""---""")
     if enter_button and from_date and to_date:
         print(from_date)
         print(to_date)
@@ -257,25 +259,29 @@ def statistics_functionality(conn):
             if to_date > from_date:
                 cursor = conn.cursor()
                 sql = f"""SELECT MESSAGE_TYPE,  COUNT(*) AS NUM_OF_MESSAGES 
-                        FROM BMKAFKO.BMOM_CO_ORDER_REFERENCE 
-                        WHERE SYS_CREATION_DATE >= TO_DATE('{from_date}', 'yyyy/mm/dd')
-                        AND SYS_CREATION_DATE <= TO_DATE('{to_date}', 'yyyy/mm/dd')
-                        GROUP BY MESSAGE_TYPE """
+                            FROM BMKAFKO.BMOM_CO_ORDER_REFERENCE 
+                            WHERE SYS_CREATION_DATE >= TO_DATE('{from_date}', 'yyyy/mm/dd')
+                            AND SYS_CREATION_DATE <= TO_DATE('{to_date}', 'yyyy/mm/dd')
+                            GROUP BY MESSAGE_TYPE """
                 tabulate_result, col_names, data_rows = get_details_from_db(cursor, sql)
                 st.text('Data')
-                st.text(tabulate_result)
-                df = pd.DataFrame(
-                    data_rows,
-                    columns=col_names)
-                df.index.name = 'idx_name'
+                a_column = []
+                b_column = []
+                for data_row in data_rows:
+                    a_column.append(data_row[0])
+                    b_column.append(data_row[1])
+                df = pd.DataFrame({
+                    'MESSAGE_TYPE': a_column,
+                    'NUM_OF_MESSAGES': b_column
+                }, columns=col_names)
+
+                chart1 = alt.Chart(df).mark_bar().encode(
+                    x='MESSAGE_TYPE',
+                    y='NUM_OF_MESSAGES'
+                )
+                st.text('Graph')
                 st.dataframe(df)
-                print(df.index.name)
-                #Removing index from df in next 2 lines
-                # blankIndex = [''] * len(df)
-                # df.index = blankIndex
-                # new_df = df.reset_index().set_index('MESSAGE_TYPE')
-                # st.text(new_df)
-                st.bar_chart(df)
+                st.altair_chart(chart1, use_container_width=True)
             else:
                 st.error('"to_date" should be greater than "from_date"')
         except Exception as er:
@@ -283,6 +289,67 @@ def statistics_functionality(conn):
         finally:
             if cursor:
                 cursor.close()
+
+
+def get_stats_by_order_type(conn):
+    col1, col2, col3, col4, _, _ = st.columns(6)
+    with col1:
+        st.markdown('Select date range :')
+    with col2:
+        from_date = st.date_input('from_date')
+    with col3:
+        to_date = st.date_input('to_date')
+    with col4:
+        msg_type = st.selectbox('MessageType', ('CREATE', 'UPDATE', 'REFRESH'))
+    enter_button = st.button('Search')
+    st.markdown("""---""")
+    if enter_button and from_date and to_date:
+        cursor = None
+        try:
+            if to_date > from_date:
+                cursor = conn.cursor()
+                sql = f"""SELECT CUSTOMER_ORDER_TYPE, COUNT(*) AS NUM_OF_MESSAGES 
+                                FROM BMKAFKO.BMOM_CO_ORDER_REFERENCE 
+                                WHERE SYS_CREATION_DATE >= TO_DATE('{from_date}', 'yyyy/mm/dd')
+                                AND SYS_CREATION_DATE <= TO_DATE('{to_date}', 'yyyy/mm/dd')
+                                AND MESSAGE_TYPE = '{msg_type}'
+                                GROUP BY CUSTOMER_ORDER_TYPE """
+                tabulate_result, col_names, data_rows = get_details_from_db(cursor, sql)
+                st.text('Data')
+                a_column = []
+                b_column = []
+                for data_row in data_rows:
+                    a_column.append(data_row[0])
+                    b_column.append(data_row[1])
+                df = pd.DataFrame({
+                    'CUSTOMER_ORDER_TYPE': a_column,
+                    'NUM_OF_MESSAGES': b_column
+                }, columns=col_names)
+
+                chart1 = alt.Chart(df).mark_bar().encode(
+                    x='CUSTOMER_ORDER_TYPE',
+                    y='NUM_OF_MESSAGES'
+                )
+                st.text('Graph')
+                st.dataframe(df)
+                st.altair_chart(chart1, use_container_width=True)
+            else:
+                st.error('"to_date" should be greater than "from_date"')
+        except Exception as er:
+            print('Error opening cursor:' + str(er))
+        finally:
+            if cursor:
+                cursor.close()
+
+
+def statistics_functionality(conn):
+    stats_selection = st.selectbox('Select type of statistic:', ('No. of messages by DateRange',
+                                               'No. of messages by OrderType'))
+    if stats_selection == 'No. of messages by DateRange':
+        get_stats_by_date_range(conn)
+    elif stats_selection == 'No. of messages by OrderType':
+        get_stats_by_order_type(conn)
+
 
 
 def print_hi():
