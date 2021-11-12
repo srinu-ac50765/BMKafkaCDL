@@ -6,7 +6,7 @@ from random import random
 import altair as alt
 
 lib_dir = r"C:\Software\instantclient-basic-windows.x64-19.11.0.0.0dbru\instantclient_19_11"
-st.set_page_config(page_title="BMKafkaCDL", page_icon=":boom:", layout='wide',
+st.set_page_config(page_title="KafkaQuest", page_icon=":boom:", layout='wide',
                    initial_sidebar_state='collapsed')
 st.header('Kafka Quest')
 st.caption('App to explore BM to CDL kafka messages')
