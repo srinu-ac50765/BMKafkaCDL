@@ -8,7 +8,8 @@ import altair as alt
 lib_dir = r"C:\Software\instantclient-basic-windows.x64-19.11.0.0.0dbru\instantclient_19_11"
 st.set_page_config(page_title="BMKafkaCDL", page_icon=":mailbox_with_mail:", layout='wide',
                    initial_sidebar_state='collapsed')
-st.subheader('App to explore BM to CDL kafka messages')
+st.header('Kafka Quest')
+st.caption('App to explore BM to CDL kafka messages')
 oracle_db_server = 'lxmdtsdxdp2-scan.test.intranet'
 oracle_db_port = '1521'
 oracle_db_service = 'ENS_DEP2'
@@ -373,4 +374,10 @@ def print_hi():
 
 
 if __name__ == '__main__':
-    print_hi()
+    username = st.sidebar.text_input('Username: ')
+    password = st.sidebar.text_input('Password: ', type='password')
+    if st.sidebar.checkbox('Login') and username == 'LumenUser' and password == 'Lum$n123':
+        print_hi()
+    else:
+        st.warning('Please provide valid credentials and select login to continue ..')
+
