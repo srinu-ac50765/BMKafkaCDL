@@ -19,6 +19,7 @@ oracle_db_passwd = 'BMP583SL'
 st.markdown(
     """
     <style>
+    .css-18e3th9 {padding-top: 0rem;}
      #MainMenu {visibility: hidden;}
      footer {visibility: hidden;}
     </style>
