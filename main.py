@@ -10,9 +10,9 @@ st.set_page_config(page_title="KafkaQuest", page_icon=":boom:", layout='wide',
                    initial_sidebar_state='collapsed')
 st.header('Kafka Quest')
 st.caption('App to explore BM to CDL kafka messages')
-oracle_db_server = 'lxmdtsdxdp2-scan.test.intranet'
+oracle_db_server = 'lxmdtsdxdp1-scan.test.intranet'
 oracle_db_port = '1521'
-oracle_db_service = 'ENS_DEP2'
+oracle_db_service = 'ENS_DEP1'
 oracle_db_user = r'BMKAFKC'
 oracle_db_passwd = 'BMP583SL'
 
